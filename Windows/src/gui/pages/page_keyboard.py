@@ -19,6 +19,7 @@ from functools import partial
 
 import customtkinter
 from PIL import Image
+from src.utils.paths import resource_path
 
 import src.shape_list as shape_list
 from src.config_manager import ConfigManager
@@ -60,7 +61,7 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
 
         # Float UIs
         self.shared_info_balloon = Balloon(
-            self, image_path="assets/images/balloon.png")
+            self, image_path=resource_path("assets/images/balloon.png"))
         self.shared_dropdown = Dropdown(
             self,
             dropdown_items=shape_list.available_gestures,
@@ -68,23 +69,23 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
             callback=self.dropdown_callback)
 
         self.help_icon = customtkinter.CTkImage(
-            Image.open("assets/images/help.png").resize(HELP_ICON_SIZE),
+            Image.open(resource_path("assets/images/help.png")).resize(HELP_ICON_SIZE),
             size=HELP_ICON_SIZE)
 
         self.a_button_image = customtkinter.CTkImage(
-            Image.open("assets/images/a_button.png").resize(A_BUTTON_SIZE),
+            Image.open(resource_path("assets/images/a_button.png")).resize(A_BUTTON_SIZE),
             size=A_BUTTON_SIZE)
 
         self.blank_a_button_image = customtkinter.CTkImage(Image.open(
-            "assets/images/blank_a_button.png").resize(A_BUTTON_SIZE),
+            resource_path("assets/images/blank_a_button.png")).resize(A_BUTTON_SIZE),
                                                            size=A_BUTTON_SIZE)
 
         self.a_button_active_image = customtkinter.CTkImage(Image.open(
-            "assets/images/a_button_active.png").resize(A_BUTTON_SIZE),
+            resource_path("assets/images/a_button_active.png")).resize(A_BUTTON_SIZE),
                                                             size=A_BUTTON_SIZE)
 
         self.bin_image = customtkinter.CTkImage(
-            Image.open("assets/images/bin.png").resize(BIN_ICON_SIZE),
+            Image.open(resource_path("assets/images/bin.png")).resize(BIN_ICON_SIZE),
             size=BIN_ICON_SIZE)
 
         self.wait_for_key_bind_id = None

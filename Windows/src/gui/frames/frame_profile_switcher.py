@@ -20,6 +20,7 @@ from functools import partial
 
 import customtkinter
 from PIL import Image
+from src.utils.paths import resource_path
 
 from src.config_manager import ConfigManager
 from src.gui.frames.safe_disposable_frame import SafeDisposableFrame
@@ -207,7 +208,7 @@ class ItemProfileSwitcher(SafeDisposableFrame):
 
     def create_div(self, row: int, div_id: str, profile_name) -> dict:
         prefix_icon = customtkinter.CTkImage(
-            Image.open("assets/images/proj_icon_blank.png"),
+            Image.open(resource_path("assets/images/proj_icon_blank.png")),
             size=PREFIX_ICON_SIZE)
 
         # Box
@@ -265,7 +266,7 @@ class ItemProfileSwitcher(SafeDisposableFrame):
 
     def create_edit_profiles_div(self, row: int, div_id: str) -> dict:
         prefix_icon = customtkinter.CTkImage(
-            Image.open("assets/images/edit.png"), size=PREFIX_ICON_SIZE)
+            Image.open(resource_path("assets/images/edit.png")), size=PREFIX_ICON_SIZE)
 
         # Box
         wrap_label = customtkinter.CTkLabel(self,
@@ -310,7 +311,7 @@ class ItemProfileSwitcher(SafeDisposableFrame):
 
     def create_add_profiles_div(self, row: int, div_id: str) -> dict:
         prefix_icon = customtkinter.CTkImage(
-            Image.open("assets/images/add_drop.png"), size=PREFIX_ICON_SIZE)
+            Image.open(resource_path("assets/images/add_drop.png")), size=PREFIX_ICON_SIZE)
 
         # Box
         wrap_label = customtkinter.CTkLabel(self,

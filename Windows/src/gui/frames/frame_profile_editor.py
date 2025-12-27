@@ -20,6 +20,7 @@ from functools import partial
 
 import customtkinter
 from PIL import Image
+from src.utils.paths import resource_path
 
 from src.config_manager import ConfigManager
 from src.gui.frames.safe_disposable_frame import SafeDisposableScrollableFrame
@@ -65,11 +66,11 @@ class ItemProfileEditor(SafeDisposableScrollableFrame):
         self.grid_columnconfigure(0, weight=1)
 
         self.edit_image = customtkinter.CTkImage(
-            Image.open("assets/images/rename.png").resize(EDIT_ICON_SIZE),
+            Image.open(resource_path("assets/images/rename.png")).resize(EDIT_ICON_SIZE),
             size=EDIT_ICON_SIZE)
 
         self.bin_image = customtkinter.CTkImage(
-            Image.open("assets/images/bin.png").resize(BIN_ICON_SIZE),
+            Image.open(resource_path("assets/images/bin.png")).resize(BIN_ICON_SIZE),
             size=BIN_ICON_SIZE)
 
         self.divs = self.load_initial_profiles()
@@ -382,7 +383,7 @@ class FrameProfileEditor():
 
         # Close button
         self.close_icon = customtkinter.CTkImage(
-            Image.open("assets/images/close.png").resize(CLOSE_ICON_SIZE),
+            Image.open(resource_path("assets/images/close.png")).resize(CLOSE_ICON_SIZE),
             size=CLOSE_ICON_SIZE)
 
         close_btn = customtkinter.CTkButton(master=self.float_window,
@@ -404,7 +405,7 @@ class FrameProfileEditor():
 
         # Add  butotn
         add_prof_image = customtkinter.CTkImage(
-            Image.open("assets/images/add_prof.png"), size=(16, 12))
+            Image.open(resource_path("assets/images/add_prof.png")), size=(16, 12))
         add_button = customtkinter.CTkButton(master=self.float_window,
                                              text="Add profile",
                                              image=add_prof_image,

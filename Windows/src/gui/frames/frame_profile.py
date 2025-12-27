@@ -20,6 +20,7 @@ from functools import partial
 
 import customtkinter
 from PIL import Image
+from src.utils.paths import resource_path
 
 from src.config_manager import ConfigManager
 from src.task_killer import TaskKiller
@@ -65,11 +66,11 @@ class FrameProfileItems(SafeDisposableScrollableFrame):
         self.grid_columnconfigure(0, weight=1)
 
         self.edit_image = customtkinter.CTkImage(
-            Image.open("assets/images/edit.png").resize(EDIT_ICON_SIZE),
+            Image.open(resource_path("assets/images/edit.png")).resize(EDIT_ICON_SIZE),
             size=EDIT_ICON_SIZE)
 
         self.bin_image = customtkinter.CTkImage(
-            Image.open("assets/images/bin.png").resize(BIN_ICON_SIZE),
+            Image.open(resource_path("assets/images/bin.png")).resize(BIN_ICON_SIZE),
             size=BIN_ICON_SIZE)
 
         self.divs = self.load_initial_profiles()
@@ -471,7 +472,7 @@ class FrameProfile(SafeDisposableFrame):
         
         # Close button
         self.close_icon = customtkinter.CTkImage(
-            Image.open("assets/images/close.png").resize(CLOSE_ICON_SIZE),
+            Image.open(resource_path("assets/images/close.png")).resize(CLOSE_ICON_SIZE),
             size=CLOSE_ICON_SIZE)
 
         close_btn = customtkinter.CTkButton(master=self.float_window,

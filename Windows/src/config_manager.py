@@ -22,11 +22,13 @@ from pathlib import Path
 
 from src.singleton_meta import Singleton
 from src.task_killer import TaskKiller
+from src.utils.paths import resource_path
+
 
 VERSION = "0.3.34"
 
-DEFAULT_JSON = Path("configs/default.json")
-BACKUP_PROFILE = Path("configs/default")
+DEFAULT_JSON = Path(resource_path("configs/default.json"))
+BACKUP_PROFILE = Path(resource_path("configs/default"))
 
 logger = logging.getLogger("ConfigManager")
 

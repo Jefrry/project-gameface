@@ -23,6 +23,7 @@ import numpy as np
 import numpy.typing as npt
 from PIL import Image
 
+from src.utils.paths import resource_path
 import src.utils as utils
 from src.config_manager import ConfigManager
 from src.controllers import MouseController
@@ -50,18 +51,18 @@ class CameraManager(metaclass=Singleton):
         self.thread_cameras = None
 
         # Load placeholder image
-        self.placeholder_im = Image.open("assets/images/placeholder.png")
+        self.placeholder_im = Image.open(resource_path("assets/images/placeholder.png"))
         self.placeholder_im = np.array(self.placeholder_im.convert('RGB'))
 
         # Overlays
         self.overlay_active = cv2.cvtColor(
-            cv2.imread("assets/images/overlays/active.png",
+            cv2.imread(resource_path("assets/images/overlays/active.png"),
                        cv2.IMREAD_UNCHANGED), cv2.COLOR_BGRA2RGB)
         self.overlay_disabled = cv2.cvtColor(
-            cv2.imread("assets/images/overlays/disabled.png",
+            cv2.imread(resource_path("assets/images/overlays/disabled.png"),
                        cv2.IMREAD_UNCHANGED), cv2.COLOR_BGRA2RGB)
         self.overlay_face_not_detected = cv2.cvtColor(
-            cv2.imread("assets/images/overlays/face_not_detected.png",
+            cv2.imread(resource_path("assets/images/overlays/face_not_detected.png"),
                        cv2.IMREAD_UNCHANGED), cv2.COLOR_BGRA2RGB)
 
         # Use dict for pass as reference

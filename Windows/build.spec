@@ -1,28 +1,60 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 from pathlib import Path
+
 import mediapipe
 import customtkinter
+from PyInstaller.utils.hooks import (
+    collect_submodules,
+    collect_dynamic_libs,
+    collect_data_files,
+)
 
 block_cipher = None
 
-mp_init = Path(mediapipe.__file__)
-mp_modules =  Path(mp_init.parent,"modules")
-
+# -------------------------------------------------
+# CustomTkinter paths
+# -------------------------------------------------
 ctk_init = Path(customtkinter.__file__)
-ctk_modules =  Path(ctk_init.parent,"modules")
+ctk_root = ctk_init.parent
 
+# -------------------------------------------------
+# MediaPipe: critical collections
+# -------------------------------------------------
+mp_hiddenimports = collect_submodules("mediapipe.tasks")
 
+mp_binaries = collect_dynamic_libs("mediapipe")
 
+mp_datas = collect_data_files(
+    "mediapipe",
+    includes=[
+        "tasks/**",
+        "modules/**",
+    ],
+)
+
+# -------------------------------------------------
+# Analysis
+# -------------------------------------------------
 app = Analysis(
     ['run_app.py'],
     pathex=[],
-    binaries=[],
-    datas=[(mp_modules.as_posix(), 'mediapipe/modules'),
-                    ('assets','assets'),
-                    ('configs','configs'),    
-                    (ctk_init.parent.as_posix(), 'customtkinter')],
-    hiddenimports=[],
+    binaries=[
+        *mp_binaries,
+    ],
+    datas=[
+        # MediaPipe data (tasks + modules)
+        *mp_datas,
+
+        ('assets', 'assets'),
+        ('configs', 'configs'),
+
+        # CustomTkinter
+        (ctk_root.as_posix(), 'customtkinter'),
+    ],
+    hiddenimports=[
+        *mp_hiddenimports,
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -32,8 +64,19 @@ app = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
-pyz_app = PYZ(app.pure, app.zipped_data, cipher=block_cipher)
 
+# -------------------------------------------------
+# PYZ
+# -------------------------------------------------
+pyz_app = PYZ(
+    app.pure,
+    app.zipped_data,
+    cipher=block_cipher
+)
+
+# -------------------------------------------------
+# EXE
+# -------------------------------------------------
 exe_app = EXE(
     pyz_app,
     app.scripts,
@@ -52,14 +95,16 @@ exe_app = EXE(
     entitlements_file=None,
 )
 
-
+# -------------------------------------------------
+# COLLECT (onedir)
+# -------------------------------------------------
 coll = COLLECT(
     exe_app,
     app.binaries,
     app.zipfiles,
     app.datas,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     name='project_gameface',
 )

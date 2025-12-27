@@ -16,6 +16,7 @@ from functools import partial
 
 import customtkinter
 from PIL import Image
+from src.utils.paths import resource_path
 
 from src.config_manager import ConfigManager
 from src.gui.frames.safe_disposable_frame import SafeDisposableFrame
@@ -40,49 +41,49 @@ class FrameMenu(SafeDisposableFrame):
         self.menu_btn_images = {
             "page_home": [
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_home.png"),
+                    Image.open(resource_path("assets/images/menu_btn_home.png")),
                     size=BTN_SIZE),
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_home_selected.png"),
+                    Image.open(resource_path("assets/images/menu_btn_home_selected.png")),
                     size=BTN_SIZE)
             ],
             "page_camera": [
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_camera.png"),
+                    Image.open(resource_path("assets/images/menu_btn_camera.png")),
                     size=BTN_SIZE),
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_camera_selected.png"),
+                    Image.open(resource_path("assets/images/menu_btn_camera_selected.png")),
                     size=BTN_SIZE)
             ],
             "page_cursor": [
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_cursor.png"),
+                    Image.open(resource_path("assets/images/menu_btn_cursor.png")),
                     size=BTN_SIZE),
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_cursor_selected.png"),
+                    Image.open(resource_path("assets/images/menu_btn_cursor_selected.png")),
                     size=BTN_SIZE)
             ],
             "page_gestures": [
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_gestures.png"),
+                    Image.open(resource_path("assets/images/menu_btn_gestures.png")),
                     size=BTN_SIZE),
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_gestures_selected.png"),
+                    Image.open(resource_path("assets/images/menu_btn_gestures_selected.png")),
                     size=BTN_SIZE)
             ],
             "page_keyboard": [
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_keyboard.png"),
+                    Image.open(resource_path("assets/images/menu_btn_keyboard.png")),
                     size=BTN_SIZE),
                 customtkinter.CTkImage(
-                    Image.open("assets/images/menu_btn_keyboard_selected.png"),
+                    Image.open(resource_path("assets/images/menu_btn_keyboard_selected.png")),
                     size=BTN_SIZE)
             ]
         }
 
         # Profile button
         prof_drop = customtkinter.CTkImage(
-            Image.open("assets/images/prof_drop_head.png"), size=PROF_DROP_SIZE)
+            Image.open(resource_path("assets/images/prof_drop_head.png")), size=PROF_DROP_SIZE)
         profile_btn = customtkinter.CTkLabel(
             master=self,
             textvariable=ConfigManager().curr_profile_name,

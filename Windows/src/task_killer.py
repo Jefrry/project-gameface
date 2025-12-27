@@ -18,6 +18,7 @@ import signal
 
 import psutil
 
+from src.utils.paths import resource_path
 import src.utils as utils
 from src.singleton_meta import Singleton
 
@@ -35,7 +36,7 @@ class TaskKiller(metaclass=Singleton):
     def start(self):
         if not self.is_started:
             logging.info("Installing google fonts.")
-            utils.install_fonts("assets/fonts")
+            utils.install_fonts(resource_path("assets/fonts"))
 
             # Start singletons
             from src.config_manager import ConfigManager
@@ -65,7 +66,7 @@ class TaskKiller(metaclass=Singleton):
         Keybinder().destroy()
         FaceMesh().destroy()
 
-        utils.remove_fonts("assets/fonts")
+        utils.remove_fonts(resource_path("assets/fonts"))
 
         parent = psutil.Process(os.getpid())
         children = parent.children(recursive=True)

@@ -17,6 +17,7 @@ import tkinter
 import customtkinter
 from PIL import Image, ImageTk
 
+from src.utils.paths import resource_path
 from src.camera_manager import CameraManager
 from src.config_manager import ConfigManager
 from src.controllers import MouseController
@@ -38,7 +39,7 @@ class FrameCamPreview(SafeDisposableFrame):
         self.configure(fg_color=LIGHT_BLUE)
 
         # Canvas.
-        self.placeholder_im = Image.open("assets/images/placeholder.png")
+        self.placeholder_im = Image.open(resource_path("assets/images/placeholder.png"))
         self.placeholder_im = ImageTk.PhotoImage(
             image=self.placeholder_im.resize((CANVAS_WIDTH, CANVAS_HEIGHT)))
 

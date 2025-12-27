@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from src.utils.paths import resource_path
+
 # Right-Left swapped
 blendshape_names = [
     "None",
@@ -91,6 +93,8 @@ available_gestures = {
     "Raise right eyebrow": "assets/images/dropdowns/Raise right eyebrow.png",
     "Lower right eyebrow": "assets/images/dropdowns/Lower right eyebrow.png",
 }
+# Convert to absolute resource paths
+available_gestures = {k: resource_path(v) for k, v in available_gestures.items()}
 for k, v in available_gestures.items():
     assert k in blendshape_names, f"{k} not in blendshape_names"
 available_gestures_keys = list(available_gestures.keys())

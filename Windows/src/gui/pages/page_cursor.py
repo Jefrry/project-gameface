@@ -19,6 +19,7 @@ from functools import partial
 import customtkinter
 import numpy as np
 from PIL import Image
+from src.utils.paths import resource_path
 
 from src.config_manager import ConfigManager
 from src.controllers import MouseController
@@ -44,11 +45,11 @@ class FrameSelectGesture(SafeDisposableFrame):
         self.grid_columnconfigure(1, weight=1)
         self.slider_dragging = False
         self.help_icon = customtkinter.CTkImage(
-            Image.open("assets/images/help.png").resize(HELP_ICON_SIZE),
+            Image.open(resource_path("assets/images/help.png")).resize(HELP_ICON_SIZE),
             size=HELP_ICON_SIZE)
 
         self.shared_info_balloon = Balloon(
-            self, image_path="assets/images/balloon.png")
+            self, image_path=resource_path("assets/images/balloon.png"))
 
         # Slider divs
         self.divs = self.create_divs({

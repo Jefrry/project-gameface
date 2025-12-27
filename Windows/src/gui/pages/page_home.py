@@ -18,6 +18,7 @@ from functools import partial
 
 import customtkinter
 from PIL import Image
+from src.utils.paths import resource_path
 
 from src.gui.frames.safe_disposable_frame import SafeDisposableFrame
 
@@ -79,7 +80,7 @@ class PageHome(SafeDisposableFrame):
 
         # Page camera btn
         page_camera_btn_im = customtkinter.CTkImage(
-            Image.open("assets/images/page_camera_btn.png"), size=BTN_SIZE)
+            Image.open(resource_path("assets/images/page_camera_btn.png")), size=BTN_SIZE)
         page_camera_btn = customtkinter.CTkButton(
             master=self,
             text="",
@@ -93,7 +94,7 @@ class PageHome(SafeDisposableFrame):
 
         # Page cursor btn
         page_cursor_btn_im = customtkinter.CTkImage(
-            Image.open("assets/images/page_cursor_btn.png"), size=BTN_SIZE)
+            Image.open(resource_path("assets/images/page_cursor_btn.png")), size=BTN_SIZE)
         page_cursor_btn = customtkinter.CTkButton(
             master=self,
             text="",
@@ -107,7 +108,7 @@ class PageHome(SafeDisposableFrame):
 
         # Page gestures btn
         page_gestures_btn_im = customtkinter.CTkImage(
-            Image.open("assets/images/page_gestures_btn.png"), size=BTN_SIZE)
+            Image.open(resource_path("assets/images/page_gestures_btn.png")), size=BTN_SIZE)
         page_gestures_btn = customtkinter.CTkButton(
             master=self,
             text="",
@@ -121,7 +122,7 @@ class PageHome(SafeDisposableFrame):
 
         # Page keyboard btn
         page_keyboard_btn_im = customtkinter.CTkImage(
-            Image.open("assets/images/page_keyboard_btn.png"), size=BTN_SIZE)
+            Image.open(resource_path("assets/images/page_keyboard_btn.png")), size=BTN_SIZE)
         page_keyboard_btn = customtkinter.CTkButton(
             master=self,
             text="",
@@ -135,7 +136,7 @@ class PageHome(SafeDisposableFrame):
 
         # home image
         home_im = customtkinter.CTkImage(
-            Image.open("assets/images/home_im.png"), size=HOME_IM_SIZE)
+            Image.open(resource_path("assets/images/home_im.png")), size=HOME_IM_SIZE)
         label = customtkinter.CTkLabel(self,
                                        image=home_im,
                                        width=HOME_IM_SIZE[0],

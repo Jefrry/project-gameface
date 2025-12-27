@@ -17,6 +17,7 @@ from functools import partial
 
 import customtkinter
 from PIL import Image
+from src.utils.paths import resource_path
 
 import src.shape_list as shape_list
 from src.config_manager import ConfigManager
@@ -50,7 +51,7 @@ class FrameSelectGesture(SafeDisposableFrame):
 
         # Float UIs
         self.shared_info_balloon = Balloon(
-            self, image_path="assets/images/balloon.png")
+            self, image_path=resource_path("assets/images/balloon.png"))
         self.shared_dropdown = Dropdown(
             self,
             dropdown_items=shape_list.available_gestures,
@@ -58,7 +59,7 @@ class FrameSelectGesture(SafeDisposableFrame):
             callback=self.dropdown_callback)
 
         self.help_icon = customtkinter.CTkImage(
-            Image.open("assets/images/help.png").resize(HELP_ICON_SIZE),
+            Image.open(resource_path("assets/images/help.png")).resize(HELP_ICON_SIZE),
             size=HELP_ICON_SIZE)
 
         # Divs

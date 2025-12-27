@@ -24,10 +24,11 @@ from mediapipe.tasks.python import vision
 import src.utils as utils
 from src.config_manager import ConfigManager
 from src.singleton_meta import Singleton
+from src.utils.paths import resource_path
 
 logger = logging.getLogger("FaceMesh")
 
-MP_TASK_FILE = "assets/task/face_landmarker_with_blendshapes.task"
+MP_TASK_FILE = resource_path("assets/task/face_landmarker_with_blendshapes.task")
 
 BLENDS_MAX_BUFFER = 100
 N_SHAPES = 52

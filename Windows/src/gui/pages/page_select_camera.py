@@ -17,6 +17,7 @@ import tkinter
 
 import customtkinter
 from PIL import Image, ImageTk
+from src.utils.paths import resource_path
 
 from src.camera_manager import CameraManager
 from src.config_manager import ConfigManager
@@ -59,8 +60,7 @@ class PageSelectCamera(SafeDisposableFrame):
         self.radios = []
 
         # Camera canvas
-        self.placeholder_im = Image.open(
-            "assets/images/placeholder.png").resize(
+        self.placeholder_im = Image.open(resource_path("assets/images/placeholder.png")).resize(
                 (CANVAS_WIDTH, CANVAS_HEIGHT))
         self.placeholder_im = ImageTk.PhotoImage(self.placeholder_im)
         self.canvas = tkinter.Canvas(master=self,
