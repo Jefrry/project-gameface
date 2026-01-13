@@ -24,7 +24,7 @@ from src.utils.paths import resource_path
 from src.config_manager import ConfigManager
 from src.controllers import MouseController
 from src.gui.balloon import Balloon
-from src.gui.frames.safe_disposable_frame import SafeDisposableFrame
+from src.gui.frames.safe_disposable_frame import SafeDisposableFrame, SafeDisposableScrollableFrame
 
 logger = logging.getLogger("PageCursor")
 MAX_ROWS = 3
@@ -216,16 +216,29 @@ class FrameSelectGesture(SafeDisposableFrame):
         ConfigManager().apply_config()
         MouseController().calc_smooth_kernel()
 
+    def set_sliders_enabled(self, enabled: bool):
+        if enabled:
+            state = "normal"
+            fg_color = ("white", "#343638")
+        else:
+            state = "disabled"
+            fg_color = ("#F0F0F0", "#3A3A3A")
+            
+        for div in self.divs.values():
+            div["slider"].configure(state=state)
+            div["entry"].configure(state=state, fg_color=fg_color)
+
+
     def inner_refresh_profile(self):
         self.load_initial_config()
 
 
-class PageCursor(SafeDisposableFrame):
+class PageCursor(SafeDisposableScrollableFrame):
 
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.is_active = False
         self.task = {}
@@ -250,9 +263,42 @@ class PageCursor(SafeDisposableFrame):
         des_label.cget("font").configure(size=14)
         des_label.grid(row=1, column=0, padx=20, pady=5, sticky="nw")
 
+        # Enable mouse movement checkbox
+        self.enable_mouse_var = tkinter.BooleanVar()
+        enable_mouse_default = ConfigManager().config.get("enable_mouse_movement", True)
+        self.enable_mouse_var.set(enable_mouse_default)
+        
+        self.enable_mouse_checkbox = customtkinter.CTkCheckBox(
+            master=self,
+            text="Enable mouse movement with gestures",
+            variable=self.enable_mouse_var,
+            command=self.on_enable_mouse_changed
+        )
+        self.enable_mouse_checkbox.cget("font").configure(size=14)
+        self.enable_mouse_checkbox.grid(row=2, column=0, padx=20, pady=10, sticky="nw")
+
         # Inner frame
         self.inner_frame = FrameSelectGesture(self)
-        self.inner_frame.grid(row=2, column=0, padx=5, pady=5, sticky="nw")
+        self.inner_frame.grid(row=3, column=0, padx=5, pady=5, sticky="nw")
+
+        # Set initial slider state based on checkbox
+        # Sliders are disabled when enable_mouse_var is True
+        self.inner_frame.set_sliders_enabled(self.enable_mouse_var.get())
+
+        self.refresh_scrollbar()
+
+    def on_enable_mouse_changed(self):
+        """Callback when the enable mouse movement checkbox is toggled"""
+        new_value = self.enable_mouse_var.get()
+        ConfigManager().set_temp_config(field="enable_mouse_movement", value=new_value)
+        ConfigManager().apply_config()
+        # Sliders are disabled when enable_mouse_var is True
+        self.inner_frame.set_sliders_enabled(new_value)
 
     def refresh_profile(self):
+        """Refresh the profile settings"""
+        # Reload checkbox state from config
+        enable_mouse_default = ConfigManager().config.get("enable_mouse_movement", True)
+        self.enable_mouse_var.set(enable_mouse_default)
+        self.inner_frame.set_sliders_enabled(enable_mouse_default)
         self.inner_frame.inner_refresh_profile()
