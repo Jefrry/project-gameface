@@ -15,5 +15,6 @@
     "hold_trigger_ms": 500, 
     "auto_play": false, 
     "mouse_acceleration": false, 
-    "use_transformation_matrix": false
+    "use_transformation_matrix": false, 
+    "enable_mouse_movement": false
 }

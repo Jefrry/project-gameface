@@ -25,7 +25,7 @@ from src.task_killer import TaskKiller
 from src.utils.paths import resource_path
 
 
-VERSION = "0.3.34"
+VERSION = "0.4.0"
 
 DEFAULT_JSON = Path(resource_path("configs/default.json"))
 BACKUP_PROFILE = Path(resource_path("configs/default"))

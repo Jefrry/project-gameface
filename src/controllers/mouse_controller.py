@@ -106,6 +106,11 @@ class MouseController(metaclass=Singleton):
                 time.sleep(0.001)
                 continue
 
+            enable_mouse_movement = ConfigManager().config.get("enable_mouse_movement", True)
+            if not enable_mouse_movement:
+                time.sleep(0.001)
+                continue
+
             self.buffer = np.roll(self.buffer, shift=-1, axis=0)
             self.buffer[-1] = self.curr_track_loc
 
