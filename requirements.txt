@@ -7,3 +7,4 @@ PyDirectInput==1.0.4
 pywin32==306
 mediapipe==0.10.31
 numpy==1.26.4
+pyinstaller==6.18.0
