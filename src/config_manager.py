@@ -211,18 +211,20 @@ class ConfigManager(metaclass=Singleton):
 
     def set_temp_keyboard_binding(self, device: str, key_action: str,
                                   gesture: str, threshold: float,
-                                  trigger_type: str):
+                                  trigger_type: str, hold_mode: bool = True,
+                                  throttle_time_ms: float = 200.0):
         logger.info(
-            "setting keybind for gesture: %s, device: %s, key: %s, threshold: %s, trigger_type: %s",
-            gesture, device, key_action, threshold, trigger_type)
+            "setting keybind for gesture: %s, device: %s, key: %s, threshold: %s, trigger_type: %s, hold_mode: %s, throttle_time_ms: %s",
+            gesture, device, key_action, threshold, trigger_type, hold_mode, throttle_time_ms)
 
         # Remove duplicate keybinds
         self.remove_temp_keyboard_binding(device, key_action, gesture)
 
-        # Assign
+        # Assign - extended structure with hold_mode and throttle_time_ms
         self.temp_keyboard_bindings[gesture] = [
             device, key_action,
-            float(threshold), trigger_type
+            float(threshold), trigger_type,
+            bool(hold_mode), float(throttle_time_ms)
         ]
         self.unsave_keyboard_bindings = True
 
