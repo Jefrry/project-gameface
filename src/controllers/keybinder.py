@@ -42,6 +42,7 @@ class Keybinder(metaclass=Singleton):
         self.holding = False
         self.is_started = False
         self.last_know_keybinds = {}
+        self.last_key_press_time = {}  # Track last key press time for throttling
 
     def start(self):
         if not self.is_started:
@@ -55,12 +56,22 @@ class Keybinder(metaclass=Singleton):
         """Re initializes the state of the keybinder.
            If new keybinds are added.
         """
+        # Preserve existing key states to avoid releasing held keys
+        old_key_states = getattr(self, 'key_states', {})
+        
         # keep states for all registered keys.
         self.key_states = {}
         for _, v in (ConfigManager().mouse_bindings |
                      ConfigManager().keyboard_bindings).items():
-            self.key_states[v[0] + "_" + v[1]] = False
-        self.key_states["holding"] = False
+            state_name = v[0] + "_" + v[1]
+            # Preserve existing state if it exists, otherwise default to False
+            self.key_states[state_name] = old_key_states.get(state_name, False)
+        self.key_states["holding"] = old_key_states.get("holding", False)
+        
+        # Only reset throttle timing if not already initialized
+        if not hasattr(self, 'last_key_press_time'):
+            self.last_key_press_time = {}
+            
         self.last_know_keybinds = copy.deepcopy(
             (ConfigManager().mouse_bindings |
              ConfigManager().keyboard_bindings))
@@ -130,17 +141,45 @@ class Keybinder(metaclass=Singleton):
                     self.holding = False
                     self.start_hold_ts = math.inf
 
-    def keyboard_action(self, val, keysym, thres, mode):
+    def keyboard_action(self, val, keysym, thres, mode, hold_mode=True, throttle_time_ms=200.0):
 
         state_name = "keyboard_" + keysym
+        current_state = self.key_states.get(state_name, False)
+        
+        # Ensure hold_mode is a boolean (handle string "True"/"False" from JSON)
+        if isinstance(hold_mode, str):
+            hold_mode = hold_mode.lower() == "true"
+        hold_mode = bool(hold_mode)
 
-        if (self.key_states[state_name] is False) and (val > thres):
-            pydirectinput.keyDown(keysym)
-            self.key_states[state_name] = True
+        if hold_mode:
+            # Hold mode: keep key pressed while gesture is above threshold
+            if not current_state and val > thres:
+                logger.info(f"HOLD keyDown: {keysym}, val={val:.3f}, thres={thres:.3f}")
+                pydirectinput.keyDown(keysym)
+                self.key_states[state_name] = True
 
-        elif (self.key_states[state_name] is True) and (val < thres):
-            pydirectinput.keyUp(keysym)
-            self.key_states[state_name] = False
+            elif current_state and val < thres:
+                logger.info(f"HOLD keyUp: {keysym}, val={val:.3f}, thres={thres:.3f}")
+                pydirectinput.keyUp(keysym)
+                self.key_states[state_name] = False
+        else:
+            # Throttled mode: single press with cooldown between activations
+            current_time = time.time() * 1000  # Convert to milliseconds
+            
+            if val > thres:
+                # Gesture is active - check if enough time has passed since last press
+                last_press_time = self.last_key_press_time.get(state_name, 0)
+                time_since_last_press = current_time - last_press_time
+                
+                if time_since_last_press >= throttle_time_ms:
+                    # Time has passed, trigger key press
+                    logger.info(f"THROTTLE press: {keysym}, val={val:.3f}, throttle={throttle_time_ms}ms")
+                    pydirectinput.press(keysym)
+                    self.last_key_press_time[state_name] = current_time
+                    self.key_states[state_name] = True
+            else:
+                # Gesture is not active
+                self.key_states[state_name] = False
 
     def act(self, blendshape_values) -> dict:
         """Trigger devices action base on blendshape values
@@ -163,7 +202,13 @@ class Keybinder(metaclass=Singleton):
                               ConfigManager().keyboard_bindings).items():
             if shape_name not in shape_list.blendshape_names:
                 continue
-            device, action, thres, mode = v
+            # Handle backward compatibility: old bindings have 4 elements, new ones have 6
+            if len(v) >= 6:
+                device, action, thres, mode, hold_mode, throttle_time_ms = v[:6]
+            else:
+                device, action, thres, mode = v
+                hold_mode = True  # Default to hold mode for backward compatibility
+                throttle_time_ms = 200.0  # Default throttle time
 
             # Get blendshape value
             idx = shape_list.blendshape_indices[shape_name]
@@ -221,7 +266,7 @@ class Keybinder(metaclass=Singleton):
                         self.mouse_action(val, action, thres, mode)
 
                 elif device == "keyboard":
-                    self.keyboard_action(val, action, thres, mode)
+                    self.keyboard_action(val, action, thres, mode, hold_mode, throttle_time_ms)
 
     def destroy(self):
         """Destroy the keybinder"""

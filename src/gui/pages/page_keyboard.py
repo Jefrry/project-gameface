@@ -108,16 +108,35 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
             div = self.create_div(self.next_empty_row, div_name, gesture_name,
                                   bind_info)
 
+            # Handle backward compatibility: old bindings have 4 elements, new ones have 6
+            if len(bind_info) >= 6:
+                hold_mode = bind_info[4]
+                throttle_time_ms = bind_info[5]
+            else:
+                hold_mode = True  # Default to hold mode for backward compatibility
+                throttle_time_ms = 200.0  # Default throttle time
+
             # Show elements related to gesture
             div["selected_gesture"] = gesture_name
             div["entry_field"].configure(image=self.blank_a_button_image)
             div["combobox"].set(gesture_name)
             div["slider"].set(int(bind_info[2] * 100))
+            div["hold_mode_var"].set(hold_mode)
+            div["throttle_time_entry"].delete(0, tk.END)
+            div["throttle_time_entry"].insert(0, str(int(throttle_time_ms)))
+            
+            # Show/hide elements based on hold mode
             div["combobox"].grid()
             div["tips_label"].grid()
             div["subtle_label"].grid()
             div["slider"].grid()
             div["volume_bar"].grid()
+            div["hold_mode_checkbox"].grid()
+            
+            if not hold_mode:
+                div["throttle_time_label"].grid()
+                div["throttle_time_entry"].grid()
+            
             self.shared_dropdown.disable_item(gesture_name)
             self.divs[div_name] = div
             self.next_empty_row += 1
@@ -169,7 +188,13 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
 
     def create_div(self, row: int, div_name: str, gesture_name: str,
                    bind_info: list):
-        _, key_action, thres, _ = bind_info
+        # Handle backward compatibility: old bindings have 4 elements, new ones have 6
+        if len(bind_info) >= 6:
+            _, key_action, thres, _, hold_mode, throttle_time_ms = bind_info[:6]
+        else:
+            _, key_action, thres, _ = bind_info
+            hold_mode = True  # Default to hold mode for backward compatibility
+            throttle_time_ms = 200.0  # Default throttle time in ms
 
         # Bin button
         remove_button = customtkinter.CTkButton(master=self,
@@ -280,12 +305,64 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
                           pady=(158, 10),
                           sticky="nw")
 
+        # Hold mode checkbox
+        hold_mode_var = tk.BooleanVar(value=hold_mode)
+        hold_mode_checkbox = customtkinter.CTkCheckBox(
+            master=self,
+            text="Hold key when gesture is active",
+            variable=hold_mode_var,
+            command=partial(self.hold_mode_checkbox_callback, div_name))
+        hold_mode_checkbox.cget("font").configure(size=12)
+        hold_mode_checkbox.grid(row=row,
+                                column=0,
+                                padx=PAD_X,
+                                pady=(182, 10),
+                                sticky="nw")
+
+        # Throttle time input (shown when hold mode is off)
+        throttle_time_label = customtkinter.CTkLabel(
+            master=self,
+            text="Throttle time (ms):",
+            text_color="#5E5E5E",
+            justify='left')
+        throttle_time_label.cget("font").configure(size=12)
+        throttle_time_label.grid(row=row,
+                                 column=0,
+                                 padx=PAD_X,
+                                 pady=(208, 5),
+                                 sticky="nw")
+
+        throttle_time_entry = customtkinter.CTkEntry(
+            master=self,
+            width=100,
+            placeholder_text="200")
+        throttle_time_entry.insert(0, str(int(throttle_time_ms)))
+        throttle_time_entry.bind(
+            "<KeyRelease>",
+            partial(self.throttle_time_entry_callback, div_name))
+        throttle_time_entry.bind(
+            "<FocusOut>",
+            partial(self.throttle_time_entry_focusout_callback, div_name))
+        throttle_time_entry.grid(row=row,
+                                 column=0,
+                                 padx=PAD_X,
+                                 pady=(228, 10),
+                                 sticky="nw")
+
         # Hide element related to gesture
         drop.grid_remove()
         tips_label.grid_remove()
         slider.grid_remove()
         volume_bar.grid_remove()
         subtle_label.grid_remove()
+        hold_mode_checkbox.grid_remove()
+        throttle_time_label.grid_remove()
+        throttle_time_entry.grid_remove()
+
+        # Show/hide throttle inputs based on hold mode
+        if not hold_mode:
+            throttle_time_label.grid()
+            throttle_time_entry.grid()
 
         return {
             "entry_field": entry_field,
@@ -294,6 +371,10 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
             "slider": slider,
             "volume_bar": volume_bar,
             "subtle_label": subtle_label,
+            "hold_mode_checkbox": hold_mode_checkbox,
+            "hold_mode_var": hold_mode_var,
+            "throttle_time_label": throttle_time_label,
+            "throttle_time_entry": throttle_time_entry,
             "selected_gesture": gesture_name,
             "selected_key_action": key_action,
             "remove_button": remove_button
@@ -313,12 +394,24 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
 
         # Set the keybinding
         thres_value = div["slider"].get() / 100
+        hold_mode = div["hold_mode_var"].get()
+        
+        # Get throttle time from entry, with validation
+        try:
+            throttle_time_ms = float(div["throttle_time_entry"].get())
+            if throttle_time_ms < 1:
+                throttle_time_ms = 1.0
+        except (ValueError, tk.TclError):
+            throttle_time_ms = 200.0  # Default if invalid
+        
         ConfigManager().set_temp_keyboard_binding(
             device="keyboard",
             key_action=div["selected_key_action"],
             gesture=div["selected_gesture"],
             threshold=thres_value,
-            trigger_type=DEFAULT_TRIGGER_TYPE)
+            trigger_type=DEFAULT_TRIGGER_TYPE,
+            hold_mode=hold_mode,
+            throttle_time_ms=throttle_time_ms)
         ConfigManager().apply_keyboard_bindings()
 
     def wait_for_key(self, div_name: str, entry_button, keydown: tk.Event):
@@ -351,6 +444,9 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
             div["volume_bar"].grid_remove()
             div["tips_label"].grid_remove()
             div["subtle_label"].grid_remove()
+            div["hold_mode_checkbox"].grid_remove()
+            div["throttle_time_label"].grid_remove()
+            div["throttle_time_entry"].grid_remove()
             self.set_new_keyboard_binding(div)
 
         # Valid key
@@ -371,6 +467,11 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
                 div["volume_bar"].grid()
                 div["tips_label"].grid()
                 div["subtle_label"].grid()
+                div["hold_mode_checkbox"].grid()
+                # Show throttle inputs only if hold mode is off
+                if not div["hold_mode_var"].get():
+                    div["throttle_time_label"].grid()
+                    div["throttle_time_entry"].grid()
 
         if self.wait_for_key_bind_id is not None:
             self.waiting_button.unbind("<KeyPress>", self.wait_for_key_bind_id)
@@ -410,11 +511,19 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
             div["volume_bar"].grid()
             div["tips_label"].grid()
             div["subtle_label"].grid()
+            div["hold_mode_checkbox"].grid()
+            # Show throttle inputs only if hold mode is off
+            if not div["hold_mode_var"].get():
+                div["throttle_time_label"].grid()
+                div["throttle_time_entry"].grid()
         else:
             div["slider"].grid_remove()
             div["volume_bar"].grid_remove()
             div["tips_label"].grid_remove()
             div["subtle_label"].grid_remove()
+            div["hold_mode_checkbox"].grid_remove()
+            div["throttle_time_label"].grid_remove()
+            div["throttle_time_entry"].grid_remove()
 
         self.set_new_keyboard_binding(div)
         self.refresh_scrollbar()
@@ -437,6 +546,68 @@ class FrameSelectKeyboard(SafeDisposableScrollableFrame):
         self.slider_dragging = False
         div = self.divs[div_name]
         self.set_new_keyboard_binding(div)
+
+    def hold_mode_checkbox_callback(self, div_name: str):
+        """Toggle throttle time input visibility based on hold mode checkbox"""
+        div = self.divs[div_name]
+        hold_mode = div["hold_mode_var"].get()
+        
+        if hold_mode:
+            # Hide throttle time inputs when hold mode is on
+            div["throttle_time_label"].grid_remove()
+            div["throttle_time_entry"].grid_remove()
+        else:
+            # Show throttle time inputs when hold mode is off
+            div["throttle_time_label"].grid()
+            div["throttle_time_entry"].grid()
+        
+        # Save the updated binding
+        self.set_new_keyboard_binding(div)
+        self.refresh_scrollbar()
+
+    def throttle_time_entry_callback(self, div_name: str, event):
+        """Validate and save binding when throttle time is changed"""
+        div = self.divs[div_name]
+        entry_value = div["throttle_time_entry"].get()
+        
+        # Validate input - allow positive numbers (integers or decimals)
+        is_valid = False
+        try:
+            value = float(entry_value)
+            if value > 0:
+                is_valid = True
+        except ValueError:
+            pass
+        
+        # Visual feedback: red background for invalid input, white for valid
+        if is_valid or entry_value == "":
+            div["throttle_time_entry"].configure(fg_color="white")
+            if entry_value:  # Only save if there's a value
+                self.set_new_keyboard_binding(div)
+        else:
+            div["throttle_time_entry"].configure(fg_color="#ee9e9d")  # Light red for invalid
+
+    def throttle_time_entry_focusout_callback(self, div_name: str, event):
+        """Validate and fix value when user leaves the entry field"""
+        div = self.divs[div_name]
+        entry_value = div["throttle_time_entry"].get()
+        
+        # Try to parse the value
+        try:
+            value = float(entry_value)
+            if value < 1:
+                value = 1.0  # Minimum 1ms
+            # Update entry with validated value
+            div["throttle_time_entry"].delete(0, tk.END)
+            div["throttle_time_entry"].insert(0, str(int(value)))
+            div["throttle_time_entry"].configure(fg_color="white")
+            self.set_new_keyboard_binding(div)
+        except ValueError:
+            # Invalid input - restore to default or last valid value
+            div["throttle_time_entry"].delete(0, tk.END)
+            div["throttle_time_entry"].insert(0, "200")
+            div["throttle_time_entry"].configure(fg_color="white")
+            self.set_new_keyboard_binding(div)
 
     def update_volume_preview(self):
 
