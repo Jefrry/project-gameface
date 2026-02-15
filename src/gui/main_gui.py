@@ -97,6 +97,11 @@ class MainGui():
                 pages.PageKeyboard(
                     master=self.tk_root,
                     logger_name="page_keyboard",
+                ),
+            "page_about":
+                pages.PageAbout(
+                    master=self.tk_root,
+                    logger_name="page_about",
                 )
         }
 

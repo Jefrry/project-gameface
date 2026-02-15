@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .page_about import *
 from .page_cursor import *
 from .page_home import *
 from .page_keyboard import *
