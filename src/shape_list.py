@@ -25,8 +25,8 @@ blendshape_names = [
     "cheekPuff",
     "cheekSquintRight",
     "cheekSquintLeft",
-    "eyeBlinkRight",
-    "eyeBlinkLeft",
+    "Eye blink right",
+    "Eye blink left",
     "eyeLookDownRight",
     "eyeLookDownLeft",
     "eyeLookInRight",
@@ -92,6 +92,8 @@ available_gestures = {
     "Lower left eyebrow": "assets/images/dropdowns/Lower left eyebrow.png",
     "Raise right eyebrow": "assets/images/dropdowns/Raise right eyebrow.png",
     "Lower right eyebrow": "assets/images/dropdowns/Lower right eyebrow.png",
+    "Eye blink left": "assets/images/dropdowns/Eye blink left.png",
+    "Eye blink right": "assets/images/dropdowns/Eye blink right.png",
 }
 # Convert to absolute resource paths
 available_gestures = {k: resource_path(v) for k, v in available_gestures.items()}
