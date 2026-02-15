@@ -31,7 +31,7 @@ class FrameMenu(SafeDisposableFrame):
     def __init__(self, master, master_callback: callable, **kwargs):
         super().__init__(master, **kwargs)
 
-        self.grid_rowconfigure(6, weight=1)
+        self.grid_rowconfigure(7, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_propagate(False)
         self.configure(fg_color=LIGHT_BLUE)
@@ -77,6 +77,14 @@ class FrameMenu(SafeDisposableFrame):
                     size=BTN_SIZE),
                 customtkinter.CTkImage(
                     Image.open(resource_path("assets/images/menu_btn_keyboard_selected.png")),
+                    size=BTN_SIZE)
+            ],
+            "page_about": [
+                customtkinter.CTkImage(
+                    Image.open(resource_path("assets/images/menu_btn_about.png")),
+                    size=BTN_SIZE),
+                customtkinter.CTkImage(
+                    Image.open(resource_path("assets/images/menu_btn_about_selected.png")),
                     size=BTN_SIZE)
             ]
         }
